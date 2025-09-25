@@ -27,4 +27,3 @@ EXPOSE 4499/tcp
 
 # Run the app
 CMD ["/app/wisecow.sh"]
-
