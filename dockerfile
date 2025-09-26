@@ -1,29 +1,14 @@
-# Use Ubuntu as base image
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
-# Avoid interactive prompts during apt install
-ENV DEBIAN_FRONTEND=noninteractive \
-    PORT=4499
+ENV DEBIAN_FRONTEND=noninteractive
+# Ensure /usr/games is in PATH so fortune & cowsay work without full path
+ENV PATH="/usr/games:/usr/local/games:${PATH}"
 
-# Install required packages: bash, fortune, cowsay, netcat
+# Install fortune-mod and cowsay
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-    bash \
-    curl \
-    netcat \
-    fortune-mod \
-    cowsay \
+    fortune-mod cowsay \
  && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
-
-# Copy the wisecow app script into container
-COPY wisecow.sh /app/wisecow.sh
-RUN chmod +x /app/wisecow.sh
-
-# Expose the app port
-EXPOSE 4499/tcp
-
-# Run the app
-CMD ["/app/wisecow.sh"]
+# Default command: print a random cow with a fortune
+CMD ["bash", "-c", "fortune | cowsay"]
