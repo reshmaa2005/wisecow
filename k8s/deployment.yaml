@@ -17,5 +17,26 @@ spec:
       containers:
       - name: wisecow
         image: reshmaa22/wisecow:cow
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PORT
+          value: "4499"
         ports:
         - containerPort: 4499
+        command: ["/bin/bash","-lc"]
+        args:
+          - |
+            apt-get update && apt-get install -y --no-install-recommends fortunes cowsay netcat-openbsd
+            export PATH=$PATH:/usr/games:/usr/local/games
+            while true; do
+              BODY="$(/usr/games/fortune | /usr/games/cowsay)" || BODY="wisecow error"
+              BYTES=$(printf "%s" "$BODY" | wc -c)
+              {
+                printf "HTTP/1.1 200 OK\r\n"
+                printf "Content-Type: text/plain\r\n"
+                printf "Content-Length: %s\r\n" "$BYTES"
+                printf "Connection: close\r\n"
+                printf "\r\n"
+                printf "%s" "$BODY"
+              } | nc -l -p "${PORT}" -q 1
+            done
