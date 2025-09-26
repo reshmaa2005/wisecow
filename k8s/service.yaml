@@ -9,7 +9,7 @@ spec:
     app: wisecow
   ports:
   - name: http
-    port: 80          # Service port inside the cluster
-    targetPort: 4499  # Container port where Wisecow runs
-    nodePort: 30080   # External port on your node
-  type: NodePort
+    port: 80          # Service port exposed outside
+    targetPort: 4499  # Container port
+  type: LoadBalancer
+
