@@ -12,3 +12,4 @@ RUN apt-get update \
 
 # Default command: print a random cow with a fortune
 CMD ["bash", "-c", "fortune | cowsay"]
+
