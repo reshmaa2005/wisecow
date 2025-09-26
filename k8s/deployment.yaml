@@ -26,17 +26,20 @@ spec:
         command: ["/bin/bash","-lc"]
         args:
           - |
-            apt-get update && apt-get install -y --no-install-recommends fortunes cowsay netcat-openbsd
-            export PATH=$PATH:/usr/games:/usr/local/games
+            set -e
+            export DEBIAN_FRONTEND=noninteractive
+            export PATH="$PATH:/usr/games:/usr/local/games"
+            apt-get update && apt-get install -y --no-install-recommends fortunes cowsay netcat-openbsd >/dev/null
             while true; do
-              BODY="$(/usr/games/fortune | /usr/games/cowsay)" || BODY="wisecow error"
-              BYTES=$(printf "%s" "$BODY" | wc -c)
+              BODY="$(fortune | cowsay)" || BODY="wisecow error"
+              BYTES=$(printf "%s" "$BODY" | wc -c | awk '{print $1}')
               {
                 printf "HTTP/1.1 200 OK\r\n"
-                printf "Content-Type: text/plain\r\n"
+                printf "Content-Type: text/plain; charset=utf-8\r\n"
                 printf "Content-Length: %s\r\n" "$BYTES"
                 printf "Connection: close\r\n"
                 printf "\r\n"
                 printf "%s" "$BODY"
-              } | nc -l -p "${PORT}" -q 1
+              } | nc -l -k -p "${PORT}" -q 1
             done
+
